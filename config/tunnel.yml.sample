@@ -1,0 +1,40 @@
+# =========================================================
+# Cloudflare Tunnel 配置样例(可选)
+#
+# 用途:离开局域网/校园网时,通过公网域名访问。
+# 相比直连 IPv6,隧道由 Cloudflare 提供「受信任的正式证书」,
+# 因此手机/平板不需要安装本地 CA。
+#
+# 使用步骤:
+#   1. cloudflared tunnel login
+#   2. cloudflared tunnel create coderemote
+#   3. 把生成的凭据 JSON 放到本目录(文件名随便,下面 tunnel: 处填隧道名)
+#   4. 复制本文件为 config/tunnel.yml 并按需修改
+#   5. 把 code.example.com 换成你自己的域名,并添加 CNAME
+#   6. 启动: .\Launch.cmd -TunnelName coderemote
+#
+# 注意:一定要用 --config 显式指定本文件路径。
+# 不要把它放到 ~/.cloudflared/config.yml,
+# 否则会劫持其它工具(如本机其他 cloudflared 隧道)的默认配置。
+# =========================================================
+
+tunnel: coderemote
+credentials-file: ./REPLACE-WITH-CREDENTIALS.json
+
+protocol: http2
+
+metrics: 127.0.0.1:20245
+
+ingress:
+  - hostname: code.example.com
+    # 指向反向代理(不是 code-server),这样隧道入口同样要求令牌
+    service: https://127.0.0.1:8092
+    originRequest:
+      # 代理使用本地 CA 签发的证书,cloudflared 无法用公共 CA 校验
+      noTLSVerify: true
+      connectTimeout: 30s
+      tcpKeepAlive: 1m0s
+      keepAliveTimeout: 2m30s
+      keepAliveConnections: 100
+      noHappyEyeballs: false
+  - service: http_status:404

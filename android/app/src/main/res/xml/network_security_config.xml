@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  允许信任「用户安装的 CA」。
+  Android 7+ 默认只信任系统 CA,而我们的服务器证书由本地 CA 签发,
+  必须在这里显式声明 src="user" 才能通过校验。
+  没有这一步,WebView 的 Service Worker 会被拒,VS Code 的 WebView 全部无法加载。
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
