@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'io.github.sayach.coderemote'
+    namespace 'io.github.sayach.vscodepocket'
     compileSdk 36
 
     defaultConfig {
-        applicationId "io.github.sayach.coderemote"
+        applicationId "io.github.sayach.vscodepocket"
         minSdk 26
         targetSdk 36
         versionCode 2

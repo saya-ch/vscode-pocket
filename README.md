@@ -1,4 +1,4 @@
-# CodeRemote
+# VSCode Pocket
 
 **Turn your desktop VS Code into a full-featured remote IDE you can open from a browser or a tablet — with every desktop extension, the integrated terminal, and debugging working.**
 
@@ -14,7 +14,7 @@ VS Code's official `serve-web` only loads the ~25 extensions that ship a **web**
 
 [code-server](https://github.com/coder/code-server) solves that: it runs a **real Node extension host on the server**, so desktop extensions run *unmodified*. Point it at your existing `~/.vscode/extensions` directory and your desktop setup appears in the browser, extension for extension.
 
-CodeRemote is the missing operational layer around code-server:
+VSCode Pocket is the missing operational layer around code-server:
 
 - **One double-click to run**, and closing the window kills everything — guaranteed.
 - **No password prompt.** The access token lives in the URL, so a bookmark just works.
@@ -79,8 +79,8 @@ CodeRemote is the missing operational layer around code-server:
 ## Quick start
 
 ```powershell
-git clone https://github.com/saya-ch/coderemote.git
-cd coderemote
+git clone https://github.com/saya-ch/vscode-pocket.git
+cd vscode-pocket
 
 # 1. Download code-server and extract it here as ./code-server/
 #    https://github.com/coder/code-server/releases  →  code-server-<ver>-windows-amd64
@@ -112,7 +112,7 @@ The token is generated on first run and stored in `config/access-token.txt`. Del
 
 ```powershell
 .\Launch.cmd -CsPort 8091 -ProxyPort 8092 -NoDesktopExtensions
-.\Launch.cmd -TunnelName coderemote      # also start a Cloudflare Tunnel
+.\Launch.cmd -TunnelName vscode-pocket      # also start a Cloudflare Tunnel
 ```
 
 ---
@@ -148,7 +148,7 @@ Webview fatal error: Could not register service worker:
 
 VS Code loads all webview assets through a **Service Worker**. Service Worker script fetches are **not** covered by `WebViewClient.onReceivedSslError` → `proceed()`. There is no click-through, no bypass. An untrusted certificate simply cannot register a service worker, full stop.
 
-### How CodeRemote solves it
+### How VSCode Pocket solves it
 
 A **stable local CA** signs a short-lived server certificate at every launch:
 
@@ -167,7 +167,7 @@ Install the CA on each phone/tablet:
 Settings → Security → Encryption & credentials
          → Install a certificate → CA certificate
          → (warned) Install anyway
-         → pick coderemote-ca.pem
+         → pick vscode-pocket-ca.pem
 ```
 
 The Android app declares `android:networkSecurityConfig` with `<certificates src="user" />` so it actually trusts user-installed CAs (Android 7+ ignores them by default).
@@ -189,10 +189,10 @@ Both terminate at the same proxy, so both require the `?k=` token. Without it yo
 
 ## Android app
 
-[`android/`](android/) is a small (~2 MB) WebView shell. [`apk/CodeRemote.apk`](apk/CodeRemote.apk) is a prebuilt **debug-signed** APK — fine for personal sideloading, not for distribution.
+[`android/`](android/) is a small (~2 MB) WebView shell. [`apk/VSCodePocket.apk`](apk/VSCodePocket.apk) is a prebuilt **debug-signed** APK — fine for personal sideloading, not for distribution.
 
 ```bash
-adb install -r apk/CodeRemote.apk
+adb install -r apk/VSCodePocket.apk
 ```
 
 - URL entry with paste button and 6-item history (long-press to delete)
@@ -218,7 +218,7 @@ gradlew.bat assembleDebug      # Windows
 ## Layout
 
 ```
-coderemote/
+vscode-pocket/
 ├── Launch.cmd              double-click launcher
 ├── scripts/Launch.ps1      the real launcher: Job Object, ports, certs, URLs
 ├── proxy/
@@ -228,7 +228,7 @@ coderemote/
 ├── config/
 │   └── tunnel.yml.sample   optional Cloudflare Tunnel config
 ├── android/                WebView shell app
-├── apk/CodeRemote.apk      prebuilt, debug-signed
+├── apk/VSCodePocket.apk      prebuilt, debug-signed
 └── docs/
     ├── ARCHITECTURE.md
     ├── TROUBLESHOOTING.md  ← read this if anything misbehaves
@@ -256,7 +256,7 @@ This is a **personal remote-development tool**. Understand the trade-offs before
 ## Caveats
 
 - The launcher targets Windows (Win32 Job Object, `netstat`, `Get-NetIPAddress`). The proxy and Android app are portable; porting the launcher to POSIX would need a process-group/subreaper equivalent.
-- Extension compatibility is code-server's, not CodeRemote's. Some extensions hard-depend on desktop-only VS Code APIs and will degrade in any browser host — check code-server's issue tracker.
+- Extension compatibility is code-server's, not VSCode Pocket's. Some extensions hard-depend on desktop-only VS Code APIs and will degrade in any browser host — check code-server's issue tracker.
 - The `apk/` icon is derived from VS Code's logo for personal convenience. **Not affiliated with or endorsed by Microsoft.** Replace it before redistributing.
 
 ---

@@ -1,4 +1,4 @@
-package io.github.sayach.coderemote;
+package io.github.sayach.vscodepocket;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -40,7 +40,7 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 
-    private static final String PREFS = "coderemote";
+    private static final String PREFS = "vscode-pocket";
     private static final String KEY_URLS = "urls";
     private static final String KEY_LAST = "last";
     private static final int MAX_HISTORY = 6;
@@ -120,7 +120,7 @@ public class MainActivity extends Activity {
         scroll.addView(col, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         TextView title = new TextView(this);
-        title.setText("CodeRemote");
+        title.setText("VSCode Pocket");
         title.setTextColor(C_TEXT);
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 26);
         title.setTypeface(Typeface.DEFAULT_BOLD);
@@ -355,7 +355,7 @@ public class MainActivity extends Activity {
                 public boolean onConsoleMessage(android.webkit.ConsoleMessage cm) {
                     String lvl = cm.messageLevel().name();
                     if (lvl.equals("ERROR") || lvl.equals("WARNING")) {
-                        android.util.Log.e("CodeRemoteWV",
+                        android.util.Log.e("VSCodePocketWV",
                             cm.message() + "  @" + cm.sourceId() + ":" + cm.lineNumber());
                     }
                     return true;

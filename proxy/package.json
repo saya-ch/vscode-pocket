@@ -1,5 +1,5 @@
 {
-  "name": "coderemote-proxy",
+  "name": "vscode-pocket-proxy",
   "version": "1.0.0",
   "private": true,
   "description": "Token-authenticated HTTPS reverse proxy that fronts code-server",

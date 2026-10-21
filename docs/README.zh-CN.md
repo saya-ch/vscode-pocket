@@ -1,4 +1,4 @@
-# CodeRemote
+# VSCode Pocket
 
 **把桌面版 VS Code 变成可在浏览器 / 平板上使用的完整远程 IDE —— 桌面插件、终端、调试全部可用。**
 
@@ -12,7 +12,7 @@ VS Code 官方的 `serve-web` 只加载那约 25 个提供了 **browser 入口**
 
 [code-server](https://github.com/coder/code-server) 换了一条路:它在**服务器上跑真正的 Node 扩展宿主**,所以桌面插件能**原样运行**。把 `extensions-dir` 指向你桌面版已经在用的 `~/.vscode/extensions`,浏览器里看到的就是你熟悉的那一整套,一个不少。
 
-CodeRemote 补的是 code-server 周边缺的那层运维能力:
+VSCode Pocket 补的是 code-server 周边缺的那层运维能力:
 
 - **双击即用**,关掉窗口全部服务立即停止(内核级保证,不留孤儿进程)。
 - **不需要输密码**。令牌写在 URL 里,存个书签就够了。
@@ -76,8 +76,8 @@ code-server **只监听环回地址**且 `auth: none`,外部无法直连,鉴权�
 ## 快速开始
 
 ```powershell
-git clone https://github.com/saya-ch/coderemote.git
-cd coderemote
+git clone https://github.com/saya-ch/vscode-pocket.git
+cd vscode-pocket
 
 # 1. 下载 code-server 解压为 ./code-server/
 #    https://github.com/coder/code-server/releases → code-server-<ver>-windows-amd64
@@ -109,7 +109,7 @@ cd ..
 
 ```powershell
 .\Launch.cmd -CsPort 8091 -ProxyPort 8092 -NoDesktopExtensions
-.\Launch.cmd -TunnelName coderemote      # 同时启动 Cloudflare 隧道
+.\Launch.cmd -TunnelName vscode-pocket      # 同时启动 Cloudflare 隧道
 ```
 
 ---
@@ -145,7 +145,7 @@ Webview fatal error: Could not register service worker:
 
 VS Code 的 WebView 资源全靠 **Service Worker** 加载,而 **SW 脚本的加载不受 `WebViewClient.onReceivedSslError` 的 `proceed()` 豁免** —— 没有点击绕过的可能。不受信任的证书就是注册不了 SW。
 
-### CodeRemote 怎么解决
+### VSCode Pocket 怎么解决
 
 **固定的本地 CA** + **每次启动重签的服务器证书**:
 
@@ -162,7 +162,7 @@ CA 固定 → 每个设备**只装一次**;服务器证书每次重签 → 永�
 设置 → 安全 → 加密与凭据
      → 安装证书 → CA 证书
      → (警告)仍然安装
-     → 选择 coderemote-ca.pem
+     → 选择 vscode-pocket-ca.pem
 ```
 
 App 里声明了 `android:networkSecurityConfig` 并带 `<certificates src="user" />`,否则 Android 7+ 会忽略用户安装的 CA。
@@ -184,10 +184,10 @@ App 里声明了 `android:networkSecurityConfig` 并带 `<certificates src="user
 
 ## 安卓 App
 
-[`android/`](../android/) 是一个 ~2 MB 的 WebView 壳。[`apk/CodeRemote.apk`](../apk/CodeRemote.apk) 是预编译的 **debug 签名**版本,适合自用侧载,不适合分发。
+[`android/`](../android/) 是一个 ~2 MB 的 WebView 壳。[`apk/VSCodePocket.apk`](../apk/VSCodePocket.apk) 是预编译的 **debug 签名**版本,适合自用侧载,不适合分发。
 
 ```bash
-adb install -r apk/CodeRemote.apk
+adb install -r apk/VSCodePocket.apk
 ```
 
 - URL 输入 + 粘贴按钮 + 6 条历史记录(长按删除)
@@ -213,7 +213,7 @@ gradlew.bat assembleDebug      # Windows
 ## 目录结构
 
 ```
-coderemote/
+vscode-pocket/
 ├── Launch.cmd              双击启动
 ├── scripts/Launch.ps1      真正的启动器:Job Object、端口、证书、URL
 ├── proxy/
@@ -223,7 +223,7 @@ coderemote/
 ├── config/
 │   └── tunnel.yml.sample   可选 Cloudflare 隧道配置
 ├── android/                安卓 WebView 壳
-├── apk/CodeRemote.apk      预编译,debug 签名
+├── apk/VSCodePocket.apk      预编译,debug 签名
 └── docs/
     ├── ARCHITECTURE.md
     ├── TROUBLESHOOTING.md  ← 出问题先看这个
@@ -251,7 +251,7 @@ coderemote/
 ## 已知限制
 
 - 启动器仅 Windows(Win32 Job Object、`netstat`、`Get-NetIPAddress`)。代理和 App 可移植;移植启动器需要等效的进程组 / subreaper 机制。
-- 插件兼容性是 code-server 的范畴,不是 CodeRemote 的。少数强依赖桌面独有 API 的插件在任何浏览器宿主里都会降级 —— 请查 code-server 的 issue。
+- 插件兼容性是 code-server 的范畴,不是 VSCode Pocket 的。少数强依赖桌面独有 API 的插件在任何浏览器宿主里都会降级 —— 请查 code-server 的 issue。
 - `apk/` 里的图标取自 VS Code 的 logo,仅为个人使用方便。**与 Microsoft 无关联、未获其背书**。再分发前请替换。
 
 ---

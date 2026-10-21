@@ -25,7 +25,7 @@ origin. The Web Crypto API is gated behind [secure contexts](https://developer.m
 VS Code encrypts the webview postMessage channel with `crypto.subtle`. Without
 it, the workbench refuses to create webviews.
 
-**Fix.** Serve HTTPS. CodeRemote's proxy terminates TLS with a locally-signed
+**Fix.** Serve HTTPS. VSCode Pocket's proxy terminates TLS with a locally-signed
 certificate (see §3). Do not "fix" this by adding `--ignore-certificate-errors`
 to a browser — that does not change the security context.
 
@@ -59,7 +59,7 @@ asset pipeline is broken, not the extension.
    (one directory per session). A `renderer_ready_timeout` line there confirms the
    diagnosis.
 4. For the Android app, `onConsoleMessage` is wired to logcat under the tag
-   `CodeRemoteWV`. `adb logcat -s CodeRemoteWV` is the fastest way to see the
+   `VSCodePocketWV`. `adb logcat -s VSCodePocketWV` is the fastest way to see the
    webview's own errors.
 
 **Do not** waste time downgrading the extension. The extension version is
@@ -247,7 +247,7 @@ garbage-collect it.
 ```
 
 If you want strict isolation, set `extensions-dir` to a code-server-owned
-directory instead of sharing (CodeRemote does the opposite by default — sharing is
+directory instead of sharing (VSCode Pocket does the opposite by default — sharing is
 the whole point — so back up anything you want to keep).
 
 ---
@@ -326,7 +326,7 @@ cost hours.
 DHCPv6 re-delegation can also change the prefix. The stable address
 (`PrefixLength 64`, `PrefixOrigin RouterAdvertisement`) is the one to publish.
 
-**Fix.** CodeRemote enumerates all global IPv6 addresses at launch, puts **all of
+**Fix.** VSCode Pocket enumerates all global IPv6 addresses at launch, puts **all of
 them** into the certificate SAN, and prints the stable `/64` one as primary with
 the rest as backups. Combined with a stable CA this means a rotated address never
 requires reinstalling the CA — just open the new printed link.
@@ -362,12 +362,12 @@ Override `onConsoleMessage` and log to logcat:
 ```java
 @Override
 public boolean onConsoleMessage(ConsoleMessage cm) {
-    Log.e("CodeRemoteWV", cm.message() + " @" + cm.sourceId() + ":" + cm.lineNumber());
+    Log.e("VSCodePocketWV", cm.message() + " @" + cm.sourceId() + ":" + cm.lineNumber());
     return true;
 }
 ```
 
-Then `adb logcat -s CodeRemoteWV`.
+Then `adb logcat -s VSCodePocketWV`.
 
 **Also:** inside a WebView, the Back button is consumed by the browser history, so
 `adb shell input keyevent 4` often does not dismiss the soft keyboard. A plain

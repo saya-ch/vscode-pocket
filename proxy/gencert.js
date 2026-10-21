@@ -43,7 +43,7 @@ function loadOrCreateCA() {
   cert.validity.notAfter = new Date();
   cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 15);
 
-  const attrs = [{ name: 'commonName', value: 'CodeRemote Local CA' }];
+  const attrs = [{ name: 'commonName', value: 'VSCode Pocket Local CA' }];
   cert.setSubject(attrs);
   cert.setIssuer(attrs);
   cert.setExtensions([
@@ -68,7 +68,7 @@ cert.validity.notBefore = new Date(Date.now() - 24 * 3600 * 1000);
 cert.validity.notAfter = new Date();
 cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 10);
 
-cert.setSubject([{ name: 'commonName', value: 'CodeRemote' }]);
+cert.setSubject([{ name: 'commonName', value: 'VSCode Pocket' }]);
 cert.setIssuer(ca.cert.subject.attributes);
 
 const altNames = [{ type: 2, value: 'localhost' }]; // DNS

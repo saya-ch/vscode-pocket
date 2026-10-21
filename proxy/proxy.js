@@ -1,4 +1,4 @@
-// CodeRemote 令牌反向代理
+// VSCode Pocket 令牌反向代理
 // 作用:给 code-server 套一层"URL 带令牌即登录"的鉴权
 //
 //   http://[IPv6]:<端口>/?k=<令牌>   → 设置 cookie 并跳转,之后免密访问

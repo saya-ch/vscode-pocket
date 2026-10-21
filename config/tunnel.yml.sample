@@ -7,18 +7,18 @@
 #
 # 使用步骤:
 #   1. cloudflared tunnel login
-#   2. cloudflared tunnel create coderemote
+#   2. cloudflared tunnel create vscode-pocket
 #   3. 把生成的凭据 JSON 放到本目录(文件名随便,下面 tunnel: 处填隧道名)
 #   4. 复制本文件为 config/tunnel.yml 并按需修改
 #   5. 把 code.example.com 换成你自己的域名,并添加 CNAME
-#   6. 启动: .\Launch.cmd -TunnelName coderemote
+#   6. 启动: .\Launch.cmd -TunnelName vscode-pocket
 #
 # 注意:一定要用 --config 显式指定本文件路径。
 # 不要把它放到 ~/.cloudflared/config.yml,
 # 否则会劫持其它工具(如本机其他 cloudflared 隧道)的默认配置。
 # =========================================================
 
-tunnel: coderemote
+tunnel: vscode-pocket
 credentials-file: ./REPLACE-WITH-CREDENTIALS.json
 
 protocol: http2

@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    CodeRemote 启动器 — 把本机 VS Code 暴露成浏览器可用的完整开发环境。
+    VSCode Pocket 启动器 — 把本机 VS Code 暴露成浏览器可用的完整开发环境。
 
 .DESCRIPTION
     窗口关闭 = 服务立即停止(用 Windows Job Object 保证子进程被回收)。
@@ -52,8 +52,8 @@ foreach ($d in @($Logs, $ConfigDir, $DataDir)) {
 # =========================================================
 # Job Object:窗口关闭/进程退出时,系统强制回收所有子进程
 # =========================================================
-if (-not ('CodeRemoteJob' -as [type])) {
-    Add-Type -Namespace '' -Name 'CodeRemoteJob' -MemberDefinition @'
+if (-not ('VSCodePocketJob' -as [type])) {
+    Add-Type -Namespace '' -Name 'VSCodePocketJob' -MemberDefinition @'
     [StructLayout(LayoutKind.Sequential)] public struct BASIC { public long PerProcessUserTimeLimit; public long PerJobUserTimeLimit; public uint LimitFlags; public UIntPtr MinimumWorkingSetSize; public UIntPtr MaximumWorkingSetSize; public uint ActiveProcessLimit; public UIntPtr Affinity; public uint PriorityClass; public uint SchedulingClass; }
     [StructLayout(LayoutKind.Sequential)] public struct IOCounters { public ulong ReadOperationCount; public ulong WriteOperationCount; public ulong OtherOperationCount; public ulong ReadTransferCount; public ulong WriteTransferCount; public ulong OtherTransferCount; }
     [StructLayout(LayoutKind.Sequential)] public struct EXTENDED { public BASIC Basic; public IOCounters IoInfo; public UIntPtr ProcessMemoryLimit; public UIntPtr JobMemoryLimit; public UIntPtr PeakProcessMemoryUsed; public UIntPtr PeakJobMemoryUsed; }
@@ -79,9 +79,9 @@ if (-not ('CodeRemoteJob' -as [type])) {
     }
 '@
 }
-$Job = [CodeRemoteJob]::CreateKillOnCloseJob()
+$Job = [VSCodePocketJob]::CreateKillOnCloseJob()
 function Add-ToJob([int]$ProcessId) {
-    if ($ProcessId -gt 0) { try { [CodeRemoteJob]::Add($Job, $ProcessId) } catch { } }
+    if ($ProcessId -gt 0) { try { [VSCodePocketJob]::Add($Job, $ProcessId) } catch { } }
 }
 
 # =========================================================
@@ -124,7 +124,7 @@ function Get-GlobalIPv6 {
 
 Write-Host ''
 Write-Host '  ================================================' -ForegroundColor Cyan
-Write-Host '   CodeRemote — VS Code in your browser' -ForegroundColor Cyan
+Write-Host '   VSCode Pocket — VS Code in your browser' -ForegroundColor Cyan
 Write-Host '   关闭此窗口 = 停止服务' -ForegroundColor DarkGray
 Write-Host '  ================================================' -ForegroundColor Cyan
 Write-Host ''
@@ -202,7 +202,7 @@ $Token = (Get-Content $TokenFile -Raw).Trim()
 # =========================================================
 # 4. 运行时生成 code-server 配置
 # =========================================================
-$ExtDir = $env:CODE_REMOTE_EXTENSIONS
+$ExtDir = $env:VSCODE_POCKET_EXTENSIONS
 if (-not $ExtDir) {
     $desktopExt = Join-Path $env:USERPROFILE '.vscode\extensions'
     if ((-not $NoDesktopExtensions) -and (Test-Path $desktopExt)) {
@@ -395,5 +395,5 @@ try {
         }
     }
 } finally {
-    if ($Job -ne [IntPtr]::Zero) { [CodeRemoteJob]::CloseHandle($Job) | Out-Null }
+    if ($Job -ne [IntPtr]::Zero) { [VSCodePocketJob]::CloseHandle($Job) | Out-Null }
 }

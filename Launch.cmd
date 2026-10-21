@@ -1,5 +1,5 @@
 @echo off
-REM CodeRemote launcher — double-click to start.
+REM VSCode Pocket launcher — double-click to start.
 REM Closing the console window stops every service (guaranteed by a Job Object).
 
 setlocal
