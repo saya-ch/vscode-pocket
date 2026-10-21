@@ -2,12 +2,16 @@
 
 ## Process tree
 
-```
-Launch.cmd
-└─ pwsh -File scripts/Launch.ps1          ← owns the Job Object
-   ├─ code-server  (lib\node.exe)         → 127.0.0.1:8091
-   ├─ proxy.js     (lib\node.exe)         → [::]:8092  (TLS)
-   └─ cloudflared  (optional)             → outbound only
+```mermaid
+flowchart LR
+    cmd["Launch.cmd"] --> ps["pwsh -File scripts/Launch.ps1<br/><i>owns the Job Object</i>"]
+    ps --> cs["code-server<br/>node.exe<br/>127.0.0.1:8091"]
+    ps --> proxy["proxy.js<br/>node.exe<br/>[::]:8092 TLS"]
+    ps --> cf["cloudflared<br/><i>optional</i><br/>outbound only"]
+    ps -.->|"all three assigned"| job[["Job Object<br/>KILL_ON_JOB_CLOSE"]]
+
+    classDef jobNode fill:#2d333b,stroke:#f85149,stroke-width:2px,color:#f0f6fc
+    class job jobNode
 ```
 
 Every child is assigned to a Windows **Job Object** created with
@@ -85,12 +89,15 @@ hostname also requires the token. There is exactly one authentication path.
 
 ## Certificate model
 
-```
-ca.pem + ca-key.pem          generated once, 15 years, stable
-      │
-      └─ signs ──▶ cert.pem + key.pem    re-signed on every launch
-                                          SANs = localhost, 127.0.0.1, ::1,
-                                                 + every current global IPv6
+```mermaid
+flowchart LR
+    ca["<b>ca.pem</b><br/>generated once<br/>15 years"]
+    leaf["<b>cert.pem</b><br/>re-signed each launch<br/>SAN = current addresses"]
+    dev["<b>Devices</b><br/>CA installed once<br/>leaves validate automatically"]
+
+    ca -->|"signs"| leaf
+    ca ==>|"trusted once"| dev
+    leaf -.->|"presented to"| dev
 ```
 
 Why the CA indirection:

@@ -39,27 +39,23 @@ VSCode Pocket is the missing operational layer around code-server:
 
 ## Architecture
 
-```
-                    ┌──────────────────────────────────────────────┐
-  browser / tablet  │  HTTPS  (CA-signed; see "The HTTPS trap")     │
-        │           └──────────────────────────────────────────────┘
-        │
-        ▼
-  ┌─────────────────────────────┐
-  │ proxy/proxy.js             │   reverse proxy, Node
-  │  · :8092, dual-stack [::]  │
-  │  · TLS termination         │
-  │  · token auth → cookie     │
-  └──────────┬─────────────────┘
-             │ HTTP, loopback only
-             ▼
-  ┌─────────────────────────────┐
-  │ code-server                │   127.0.0.1:8091, auth: none
-  │  · Node extension host     │   ← this is why desktop extensions work
-  │  · extensions-dir ─────────┼──▶ ~/.vscode/extensions  (shared with desktop)
-  └─────────────────────────────┘
+```mermaid
+flowchart LR
+    browser(["Browser / tablet"])
+    tunnel["Cloudflare Tunnel<br/><i>optional</i>"]
 
-  optional: Cloudflare Tunnel ──▶ https://code.example.com ──▶ proxy:8092
+    subgraph host["Your machine"]
+        direction LR
+        proxy["<b>proxy.js</b><br/>:8092<br/>dual stack<br/>TLS + token"]
+        cs["<b>code-server</b><br/>127.0.0.1:8091<br/>auth: none"]
+        ext["~/.vscode/extensions<br/>shared with desktop"]
+        proxy -->|"HTTP<br/>loopback"| cs
+        cs --> ext
+    end
+
+    browser -->|"HTTPS · local CA<br/>?k=token"| proxy
+    browser -.->|"HTTPS · public CA"| tunnel
+    tunnel -.->|"HTTPS · public CA"| proxy
 ```
 
 `code-server` is bound to **loopback only** and runs with `auth: none`. It is therefore unreachable except through the proxy, and the proxy is the single place where authentication happens.
@@ -217,23 +213,19 @@ gradlew.bat assembleDebug      # Windows
 
 ## Layout
 
-```
-vscode-pocket/
-├── Launch.cmd              double-click launcher
-├── scripts/Launch.ps1      the real launcher: Job Object, ports, certs, URLs
-├── proxy/
-│   ├── proxy.js            HTTPS reverse proxy + token auth
-│   ├── gencert.js          stable CA + per-launch server certificate
-│   └── package.json
-├── config/
-│   └── tunnel.yml.sample   optional Cloudflare Tunnel config
-├── android/                WebView shell app
-├── apk/VSCodePocket.apk      prebuilt, debug-signed
-└── docs/
-    ├── ARCHITECTURE.md
-    ├── TROUBLESHOOTING.md  ← read this if anything misbehaves
-    └── README.zh-CN.md
-```
+| Path | What it is |
+|---|---|
+| `Launch.cmd` | double-click launcher |
+| `scripts/Launch.ps1` | the real launcher: Job Object, ports, certs, URLs |
+| `proxy/proxy.js` | HTTPS reverse proxy + token auth |
+| `proxy/gencert.js` | stable CA + per-launch server certificate |
+| `proxy/package.json` | two dependencies: `http-proxy`, `node-forge` |
+| `config/tunnel.yml.sample` | optional Cloudflare Tunnel config |
+| `android/` | WebView shell app |
+| `apk/VSCodePocket.apk` | prebuilt, debug-signed |
+| `docs/ARCHITECTURE.md` | how the pieces fit together |
+| `docs/TROUBLESHOOTING.md` | read this if anything misbehaves |
+| `docs/README.zh-CN.md` | 中文说明 |
 
 Generated at runtime, never committed: `proxy/certs/`, `proxy/node_modules/`, `config/code-server.yaml`, `config/access-token.txt`, `config/tunnel.yml`, `logs/`, `data/`.
 

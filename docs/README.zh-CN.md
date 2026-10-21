@@ -37,26 +37,23 @@ VSCode Pocket 补的是 code-server 周边缺的那层运维能力:
 
 ## 架构
 
-```
-                    ┌──────────────────────────────────────────────┐
-  浏览器 / 平板      │  HTTPS(本地 CA 签发,详见下文)                │
-        │           └──────────────────────────────────────────────┘
-        ▼
-  ┌─────────────────────────────┐
-  │ proxy/proxy.js             │   反向代理
-  │  · :8092 双栈 [::]          │
-  │  · TLS 终止                 │
-  │  · 令牌 → cookie            │
-  └──────────┬─────────────────┘
-             │ HTTP,仅环回
-             ▼
-  ┌─────────────────────────────┐
-  │ code-server                │   127.0.0.1:8091, auth: none
-  │  · Node 扩展宿主            │   ← 桌面插件能用的根本原因
-  │  · extensions-dir ─────────┼──▶ ~/.vscode/extensions(与桌面共用)
-  └─────────────────────────────┘
+```mermaid
+flowchart LR
+    browser(["浏览器 / 平板"])
+    tunnel["Cloudflare 隧道<br/><i>可选</i>"]
 
-  可选:Cloudflare 隧道 ──▶ https://code.example.com ──▶ proxy:8092
+    subgraph host["本机"]
+        direction LR
+        proxy["<b>proxy.js</b><br/>:8092<br/>双栈<br/>TLS + 令牌"]
+        cs["<b>code-server</b><br/>127.0.0.1:8091<br/>auth: none"]
+        ext["~/.vscode/extensions<br/>与桌面版共用"]
+        proxy -->|"HTTP<br/>环回"| cs
+        cs --> ext
+    end
+
+    browser -->|"HTTPS · 本地 CA<br/>?k=令牌"| proxy
+    browser -.->|"HTTPS · 公共 CA"| tunnel
+    tunnel -.->|"HTTPS · 公共 CA"| proxy
 ```
 
 code-server **只监听环回地址**且 `auth: none`,外部无法直连,鉴权完全收敛在代理这一层。
@@ -212,23 +209,19 @@ gradlew.bat assembleDebug      # Windows
 
 ## 目录结构
 
-```
-vscode-pocket/
-├── Launch.cmd              双击启动
-├── scripts/Launch.ps1      真正的启动器:Job Object、端口、证书、URL
-├── proxy/
-│   ├── proxy.js            HTTPS 反向代理 + 令牌鉴权
-│   ├── gencert.js          固定 CA + 每次重签的服务器证书
-│   └── package.json
-├── config/
-│   └── tunnel.yml.sample   可选 Cloudflare 隧道配置
-├── android/                安卓 WebView 壳
-├── apk/VSCodePocket.apk      预编译,debug 签名
-└── docs/
-    ├── ARCHITECTURE.md
-    ├── TROUBLESHOOTING.md  ← 出问题先看这个
-    └── README.zh-CN.md
-```
+| 路径 | 说明 |
+|---|---|
+| `Launch.cmd` | 双击启动 |
+| `scripts/Launch.ps1` | 真正的启动器:Job Object、端口、证书、URL |
+| `proxy/proxy.js` | HTTPS 反向代理 + 令牌鉴权 |
+| `proxy/gencert.js` | 固定 CA + 每次重签的服务器证书 |
+| `proxy/package.json` | 两个依赖:`http-proxy`、`node-forge` |
+| `config/tunnel.yml.sample` | 可选 Cloudflare 隧道配置 |
+| `android/` | 安卓 WebView 壳 |
+| `apk/VSCodePocket.apk` | 预编译,debug 签名 |
+| `docs/ARCHITECTURE.md` | 各部分如何协同 |
+| `docs/TROUBLESHOOTING.md` | 出问题先看这个 |
+| `docs/README.zh-CN.md` | 中文说明(本文件) |
 
 运行时生成、**不入库**:`proxy/certs/`、`proxy/node_modules/`、`config/code-server.yaml`、`config/access-token.txt`、`config/tunnel.yml`、`logs/`、`data/`。
 
